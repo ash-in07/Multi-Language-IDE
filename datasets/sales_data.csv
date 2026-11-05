@@ -1,0 +1,14 @@
+order_id,product_category,product_name,units_sold,unit_price,total_revenue,region
+1001,Electronics,Laptop Pro 15,2,1200,2400,North
+1002,Electronics,Wireless Mouse,15,25,375,West
+1003,Furniture,Ergonomic Chair,4,250,1000,East
+1004,Office Supplies,Gel Pens Pack,30,5,150,South
+1005,Electronics,4K Monitor,3,350,1050,North
+1006,Furniture,Standing Desk,2,450,900,West
+1007,Office Supplies,Notebook Binder,25,8,200,East
+1008,Electronics,Noise Cancelling Headset,6,180,1080,North
+1009,Furniture,Bookshelf Unit,3,150,450,South
+1010,Electronics,USB-C Docking Station,5,110,550,East
+1011,Office Supplies,Printer Paper Ream,40,6,240,West
+1012,Electronics,Webcam HD,8,65,520,South
+

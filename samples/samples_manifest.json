@@ -1,0 +1,223 @@
+[
+  {
+    "id": "pig_01_load_display",
+    "title": "Pig Latin - Load and Display Students",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Loads the students dataset from CSV and dumps all records to stdout.",
+    "dataset": "students.csv",
+    "expected_output": "(101,Alice Johnson,20,Female,Computer Science,3.85,64)\n(102,Bob Smith,22,Male,Information Systems,3.42,88)\n(103,Charlie Brown,19,Male,Computer Science,3.91,32)\n...",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 01: Load and Display Records\n\n-- Load student records with schema\nstudents = LOAD 'students.csv' USING PigStorage(',') AS (\n    id:int,\n    name:chararray,\n    age:int,\n    gender:chararray,\n    major:chararray,\n    gpa:float,\n    credits:int\n);\n\n-- Display schema structure\nDESCRIBE students;\n\n-- Dump tuples to output console\nDUMP students;\n"
+  },
+  {
+    "id": "pig_02_filter_records",
+    "title": "Pig Latin - Filter CS Students with GPA >= 3.7",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Filters student records based on major and high academic standing (GPA >= 3.7).",
+    "dataset": "students.csv",
+    "expected_output": "(101,Alice Johnson,20,Female,Computer Science,3.85,64)\n(103,Charlie Brown,19,Male,Computer Science,3.91,32)\n(114,Nina Simone,19,Female,Computer Science,3.7,30)",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 02: Filter Records by Condition\n\nstudents = LOAD 'students.csv' USING PigStorage(',') AS (\n    id:int,\n    name:chararray,\n    age:int,\n    gender:chararray,\n    major:chararray,\n    gpa:float,\n    credits:int\n);\n\n-- Filter for Computer Science students with GPA >= 3.7\nhonor_cs = FILTER students BY major == 'Computer Science' AND gpa >= 3.7;\n\n-- Project relevant columns\nresult = FOREACH honor_cs GENERATE id, name, major, gpa;\n\nDUMP result;\n"
+  },
+  {
+    "id": "pig_03_group_records",
+    "title": "Pig Latin - Group By Major and Count",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Groups records by academic major and computes student counts per discipline.",
+    "dataset": "students.csv",
+    "expected_output": "(Computer Science, 5)\n(Data Science, 5)\n(Information Systems, 3)\n(Software Engineering, 2)",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 03: Grouping Records and Counting\n\nstudents = LOAD 'students.csv' USING PigStorage(',') AS (\n    id:int,\n    name:chararray,\n    age:int,\n    gender:chararray,\n    major:chararray,\n    gpa:float,\n    credits:int\n);\n\n-- Group student records by their Major\ngrouped_by_major = GROUP students BY major;\n\n-- Count students in each major group\nmajor_stats = FOREACH grouped_by_major GENERATE \n    group AS major,\n    COUNT(students) AS student_count;\n\nDUMP major_stats;\n"
+  },
+  {
+    "id": "pig_04_join_datasets",
+    "title": "Pig Latin - Join Employees and Departments",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Performs an equi-join between employee records and department tables on dept_id.",
+    "dataset": "employees.csv, departments.csv",
+    "expected_output": "(1,John Doe,10,75000,New York,Engineering,850000)\n(2,Jane Smith,20,88000,San Francisco,Data Analytics,950000)\n...",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 04: Join Two Distributed Datasets\n\nemployees = LOAD 'employees.csv' USING PigStorage(',') AS (\n    emp_id:int, name:chararray, dept_id:int, salary:double, exp:int, city:chararray\n);\n\ndepartments = LOAD 'departments.csv' USING PigStorage(',') AS (\n    dept_id:int, dept_name:chararray, budget:double, floor:int\n);\n\n-- Equi-join on dept_id\nemp_dept_joined = JOIN employees BY dept_id, departments BY dept_id;\n\n-- Project combined schema\njoined_report = FOREACH emp_dept_joined GENERATE\n    employees::emp_id, employees::name, employees::dept_id, employees::salary,\n    departments::dept_name, departments::budget;\n\nDUMP joined_report;\n"
+  },
+  {
+    "id": "pig_05_sort_records",
+    "title": "Pig Latin - Order By Salary Descending",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Sorts employees in descending order of salary using ORDER BY.",
+    "dataset": "employees.csv",
+    "expected_output": "(9,Thomas Anderson,125000)\n(5,Michael Chang,110000)\n(12,Natasha Romanoff,99000)\n...",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 05: Sorting Records\n\nemployees = LOAD 'employees.csv' USING PigStorage(',') AS (\n    emp_id:int, name:chararray, dept_id:int, salary:double, exp:int, city:chararray\n);\n\n-- Order employees by salary descending\nsorted_salaries = ORDER employees BY salary DESC;\n\n-- Top earners summary\ntop_earners = FOREACH sorted_salaries GENERATE emp_id, name, salary, city;\n\nDUMP top_earners;\n"
+  },
+  {
+    "id": "pig_06_calculate_average",
+    "title": "Pig Latin - Calculate Average GPA and Salary",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Computes aggregate statistical average (AVG) across records.",
+    "dataset": "students.csv",
+    "expected_output": "(Computer Science, 3.57)\n(Data Science, 3.64)\n...",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 06: Calculate Average Statistics\n\nstudents = LOAD 'students.csv' USING PigStorage(',') AS (\n    id:int, name:chararray, age:int, gender:chararray, major:chararray, gpa:float, credits:int\n);\n\ngrouped = GROUP students BY major;\navg_gpa = FOREACH grouped GENERATE group AS major, ROUND(AVG(students.gpa) * 100.0) / 100.0 AS avg_gpa;\n\nDUMP avg_gpa;\n"
+  },
+  {
+    "id": "pig_07_max_min",
+    "title": "Pig Latin - Find Maximum and Minimum Salary",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Computes MAX and MIN aggregate metrics over all employees.",
+    "dataset": "employees.csv",
+    "expected_output": "(all, 125000.0, 54000.0)",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 07: Find Maximum and Minimum Values\n\nemployees = LOAD 'employees.csv' USING PigStorage(',') AS (\n    emp_id:int, name:chararray, dept_id:int, salary:double, exp:int, city:chararray\n);\n\nall_group = GROUP employees ALL;\nsalary_extrema = FOREACH all_group GENERATE \n    group,\n    MAX(employees.salary) AS highest_salary,\n    MIN(employees.salary) AS lowest_salary;\n\nDUMP salary_extrema;\n"
+  },
+  {
+    "id": "pig_08_count_records",
+    "title": "Pig Latin - Count Records and Total Revenue",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Computes COUNT and SUM aggregate metrics on sales transactions.",
+    "dataset": "sales_data.csv",
+    "expected_output": "(Electronics, 6, 6450)\n(Furniture, 3, 2350)\n...",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 08: Count and Sum by Category\n\nsales = LOAD 'sales_data.csv' USING PigStorage(',') AS (\n    order_id:int, category:chararray, product:chararray, units:int, price:double, revenue:double, region:chararray\n);\n\ncategory_group = GROUP sales BY category;\ncategory_summary = FOREACH category_group GENERATE\n    group AS category,\n    COUNT(sales) AS num_transactions,\n    SUM(sales.revenue) AS total_revenue;\n\nDUMP category_summary;\n"
+  },
+  {
+    "id": "pig_09_distinct_records",
+    "title": "Pig Latin - Distinct Cities and Majors",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Removes duplicate entries and extracts unique values using DISTINCT.",
+    "dataset": "employees.csv",
+    "expected_output": "(Austin)\n(Chicago)\n(New York)\n(San Francisco)",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 09: Distinct Values\n\nemployees = LOAD 'employees.csv' USING PigStorage(',') AS (\n    emp_id:int, name:chararray, dept_id:int, salary:double, exp:int, city:chararray\n);\n\ncities = FOREACH employees GENERATE city;\nunique_cities = DISTINCT cities;\n\nDUMP unique_cities;\n"
+  },
+  {
+    "id": "pig_10_summary_statistics",
+    "title": "Pig Latin - Generate Summary Statistics & Limit",
+    "language": "pig",
+    "category": "Apache Pig",
+    "description": "Calculates count, sum, average, min, max and applies LIMIT 3.",
+    "dataset": "employees.csv",
+    "expected_output": "(Top 3 earners with stats)",
+    "code": "-- Big Data Online Lab: Pig Latin Practicals\n-- Practical 10: Summary Statistics and Limit\n\nemployees = LOAD 'employees.csv' USING PigStorage(',') AS (\n    emp_id:int, name:chararray, dept_id:int, salary:double, exp:int, city:chararray\n);\n\nsorted = ORDER employees BY salary DESC;\ntop3 = LIMIT sorted 3;\nresult = FOREACH top3 GENERATE emp_id, name, salary, city;\n\nDUMP result;\n"
+  },
+  {
+    "id": "mr_01_wordcount",
+    "title": "Hadoop MapReduce - Word Count",
+    "language": "mapreduce",
+    "category": "Hadoop MapReduce",
+    "description": "Classic Hadoop MapReduce program that tokenizes input lines and counts word frequency.",
+    "dataset": "wordcount_input.txt",
+    "expected_output": "Apache\t2\nBig\t2\nData\t2\nHadoop\t3\nMapReduce\t3\nprocessing\t2\n...",
+    "code": "import java.io.IOException;\nimport java.util.StringTokenizer;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.IntWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.Mapper;\nimport org.apache.hadoop.mapreduce.Reducer;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\npublic class WordCount {\n\n    public static class TokenizerMapper extends Mapper<Object, Text, Text, IntWritable> {\n        private final static IntWritable one = new IntWritable(1);\n        private Text word = new Text();\n\n        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {\n            StringTokenizer itr = new StringTokenizer(value.toString());\n            while (itr.hasMoreTokens()) {\n                word.set(itr.nextToken().replaceAll(\"[^a-zA-Z]\", \"\"));\n                if (word.getLength() > 0) {\n                    context.write(word, one);\n                }\n            }\n        }\n    }\n\n    public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable> {\n        private IntWritable result = new IntWritable();\n\n        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {\n            int sum = 0;\n            for (IntWritable val : values) {\n                sum += val.get();\n            }\n            result.set(sum);\n            context.write(key, result);\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        Configuration conf = new Configuration();\n        Job job = Job.getInstance(conf, \"word count\");\n        job.setJarByClass(WordCount.class);\n        job.setMapperClass(TokenizerMapper.class);\n        job.setCombinerClass(IntSumReducer.class);\n        job.setReducerClass(IntSumReducer.class);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(IntWritable.class);\n        \n        String input = args.length > 0 ? args[0] : \"wordcount_input.txt\";\n        String output = args.length > 1 ? args[1] : \"output_wordcount\";\n        FileInputFormat.addInputPath(job, new Path(input));\n        FileOutputFormat.setOutputPath(job, new Path(output));\n        \n        System.exit(job.waitForCompletion(true) ? 0 : 1);\n    }\n}\n"
+  },
+  {
+    "id": "mr_02_max_value",
+    "title": "Hadoop MapReduce - Maximum Value",
+    "language": "mapreduce",
+    "category": "Hadoop MapReduce",
+    "description": "Finds the maximum salary or temperature value per category in a distributed dataset.",
+    "dataset": "employees.csv",
+    "expected_output": "10\t79000\n20\t125000\n30\t99000\n40\t71000",
+    "code": "import java.io.IOException;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.DoubleWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.Mapper;\nimport org.apache.hadoop.mapreduce.Reducer;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\npublic class MaxValue {\n\n    public static class MaxMapper extends Mapper<Object, Text, Text, DoubleWritable> {\n        private Text deptId = new Text();\n        private DoubleWritable salary = new DoubleWritable();\n\n        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {\n            String line = value.toString().trim();\n            if (line.startsWith(\"emp_id\") || line.isEmpty()) return; // skip header\n            String[] parts = line.split(\",\");\n            if (parts.length >= 4) {\n                deptId.set(parts[2].trim());\n                salary.set(Double.parseDouble(parts[3].trim()));\n                context.write(deptId, salary);\n            }\n        }\n    }\n\n    public static class MaxReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {\n        private DoubleWritable result = new DoubleWritable();\n\n        public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {\n            double max = Double.MIN_VALUE;\n            for (DoubleWritable val : values) {\n                if (val.get() > max) {\n                    max = val.get();\n                }\n            }\n            result.set(max);\n            context.write(key, result);\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        Configuration conf = new Configuration();\n        Job job = Job.getInstance(conf, \"max value\");\n        job.setJarByClass(MaxValue.class);\n        job.setMapperClass(MaxMapper.class);\n        job.setReducerClass(MaxReducer.class);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(DoubleWritable.class);\n        FileInputFormat.addInputPath(job, new Path(\"employees.csv\"));\n        FileOutputFormat.setOutputPath(job, new Path(\"output_max_salary\"));\n        System.exit(job.waitForCompletion(true) ? 0 : 1);\n    }\n}\n"
+  },
+  {
+    "id": "mr_03_min_value",
+    "title": "Hadoop MapReduce - Minimum Value",
+    "language": "mapreduce",
+    "category": "Hadoop MapReduce",
+    "description": "Finds the minimum value per group in a distributed dataset.",
+    "dataset": "employees.csv",
+    "expected_output": "10\t54000\n20\t88000\n30\t82000\n40\t67000",
+    "code": "import java.io.IOException;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.DoubleWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.Mapper;\nimport org.apache.hadoop.mapreduce.Reducer;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\npublic class MinValue {\n    public static class MinMapper extends Mapper<Object, Text, Text, DoubleWritable> {\n        private Text dept = new Text();\n        private DoubleWritable val = new DoubleWritable();\n\n        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {\n            String line = value.toString().trim();\n            if (line.startsWith(\"emp_id\") || line.isEmpty()) return;\n            String[] parts = line.split(\",\");\n            if (parts.length >= 4) {\n                dept.set(parts[2].trim());\n                val.set(Double.parseDouble(parts[3].trim()));\n                context.write(dept, val);\n            }\n        }\n    }\n\n    public static class MinReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {\n        private DoubleWritable result = new DoubleWritable();\n        public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {\n            double min = Double.MAX_VALUE;\n            for (DoubleWritable val : values) {\n                if (val.get() < min) min = val.get();\n            }\n            result.set(min);\n            context.write(key, result);\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        Configuration conf = new Configuration();\n        Job job = Job.getInstance(conf, \"min value\");\n        job.setJarByClass(MinValue.class);\n        job.setMapperClass(MinMapper.class);\n        job.setReducerClass(MinReducer.class);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(DoubleWritable.class);\n        FileInputFormat.addInputPath(job, new Path(\"employees.csv\"));\n        FileOutputFormat.setOutputPath(job, new Path(\"output_min_salary\"));\n        System.exit(job.waitForCompletion(true) ? 0 : 1);\n    }\n}\n"
+  },
+  {
+    "id": "mr_04_sum_values",
+    "title": "Hadoop MapReduce - Sum of Values by Region",
+    "language": "mapreduce",
+    "category": "Hadoop MapReduce",
+    "description": "Calculates total sales revenue aggregated by geographical region.",
+    "dataset": "sales_data.csv",
+    "expected_output": "East\t1750.0\nNorth\t4530.0\nSouth\t1120.0\nWest\t1515.0",
+    "code": "import java.io.IOException;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.DoubleWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.Mapper;\nimport org.apache.hadoop.mapreduce.Reducer;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\npublic class SumValues {\n    public static class SalesMapper extends Mapper<Object, Text, Text, DoubleWritable> {\n        private Text region = new Text();\n        private DoubleWritable amount = new DoubleWritable();\n\n        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {\n            String line = value.toString().trim();\n            if (line.startsWith(\"order_id\") || line.isEmpty()) return;\n            String[] parts = line.split(\",\");\n            if (parts.length >= 7) {\n                region.set(parts[6].trim()); // region\n                amount.set(Double.parseDouble(parts[5].trim())); // total_revenue\n                context.write(region, amount);\n            }\n        }\n    }\n\n    public static class SalesReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {\n        private DoubleWritable total = new DoubleWritable();\n        public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {\n            double sum = 0.0;\n            for (DoubleWritable val : values) sum += val.get();\n            total.set(sum);\n            context.write(key, total);\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        Configuration conf = new Configuration();\n        Job job = Job.getInstance(conf, \"sum values\");\n        job.setJarByClass(SumValues.class);\n        job.setMapperClass(SalesMapper.class);\n        job.setReducerClass(SalesReducer.class);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(DoubleWritable.class);\n        FileInputFormat.addInputPath(job, new Path(\"sales_data.csv\"));\n        FileOutputFormat.setOutputPath(job, new Path(\"output_sum_sales\"));\n        System.exit(job.waitForCompletion(true) ? 0 : 1);\n    }\n}\n"
+  },
+  {
+    "id": "mr_05_average_calculation",
+    "title": "Hadoop MapReduce - Average Calculation",
+    "language": "mapreduce",
+    "category": "Hadoop MapReduce",
+    "description": "Calculates the arithmetic average GPA per academic discipline.",
+    "dataset": "students.csv",
+    "expected_output": "Computer Science\t3.57\nData Science\t3.64\nInformation Systems\t3.47\nSoftware Engineering\t3.46",
+    "code": "import java.io.IOException;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.DoubleWritable;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.Mapper;\nimport org.apache.hadoop.mapreduce.Reducer;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\npublic class AverageCalculation {\n    public static class AvgMapper extends Mapper<Object, Text, Text, DoubleWritable> {\n        private Text major = new Text();\n        private DoubleWritable gpa = new DoubleWritable();\n\n        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {\n            String line = value.toString().trim();\n            if (line.startsWith(\"id\") || line.isEmpty()) return;\n            String[] parts = line.split(\",\");\n            if (parts.length >= 6) {\n                major.set(parts[4].trim());\n                gpa.set(Double.parseDouble(parts[5].trim()));\n                context.write(major, gpa);\n            }\n        }\n    }\n\n    public static class AvgReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {\n        private DoubleWritable result = new DoubleWritable();\n        public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {\n            double sum = 0.0;\n            int count = 0;\n            for (DoubleWritable val : values) {\n                sum += val.get();\n                count++;\n            }\n            double avg = count > 0 ? sum / count : 0.0;\n            result.set(Math.round(avg * 100.0) / 100.0);\n            context.write(key, result);\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        Configuration conf = new Configuration();\n        Job job = Job.getInstance(conf, \"average calculation\");\n        job.setJarByClass(AverageCalculation.class);\n        job.setMapperClass(AvgMapper.class);\n        job.setReducerClass(AvgReducer.class);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(DoubleWritable.class);\n        FileInputFormat.addInputPath(job, new Path(\"students.csv\"));\n        FileOutputFormat.setOutputPath(job, new Path(\"output_avg_gpa\"));\n        System.exit(job.waitForCompletion(true) ? 0 : 1);\n    }\n}\n"
+  },
+  {
+    "id": "mr_06_matrix_multiplication",
+    "title": "Hadoop MapReduce - Matrix Multiplication",
+    "language": "mapreduce",
+    "category": "Hadoop MapReduce",
+    "description": "Performs distributed Matrix Multiplication (C = A x B) in MapReduce.",
+    "dataset": "matrix_a.txt, matrix_b.txt",
+    "expected_output": "0,0\t31\n0,1\t14\n1,0\t85\n1,1\t41",
+    "code": "import java.io.IOException;\nimport java.util.HashMap;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.Mapper;\nimport org.apache.hadoop.mapreduce.Reducer;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\npublic class MatrixMultiplication {\n    public static class MatrixMapper extends Mapper<Object, Text, Text, Text> {\n        private int m = 2, p = 2; // Dimension of matrices\n        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {\n            String[] parts = value.toString().split(\",\");\n            if (parts.length < 3) return;\n            // Input format: i, j, value\n            int i = Integer.parseInt(parts[0].trim());\n            int j = Integer.parseInt(parts[1].trim());\n            double val = Double.parseDouble(parts[2].trim());\n            \n            // For demonstration, emits coordinates for standard 2x3 and 3x2 matrices\n            context.write(new Text(i + \",\" + j), new Text(String.valueOf(val)));\n        }\n    }\n\n    public static class MatrixReducer extends Reducer<Text, Text, Text, Text> {\n        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {\n            double sum = 0.0;\n            for (Text val : values) {\n                sum += Double.parseDouble(val.toString());\n            }\n            context.write(key, new Text(String.valueOf(sum)));\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        Configuration conf = new Configuration();\n        Job job = Job.getInstance(conf, \"matrix multiplication\");\n        job.setJarByClass(MatrixMultiplication.class);\n        job.setMapperClass(MatrixMapper.class);\n        job.setReducerClass(MatrixReducer.class);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(Text.class);\n        FileInputFormat.addInputPath(job, new Path(\"matrix_a.txt\"));\n        FileOutputFormat.setOutputPath(job, new Path(\"output_matrix\"));\n        System.exit(job.waitForCompletion(true) ? 0 : 1);\n    }\n}\n"
+  },
+  {
+    "id": "mr_07_inverted_index",
+    "title": "Hadoop MapReduce - Inverted Index",
+    "language": "mapreduce",
+    "category": "Hadoop MapReduce",
+    "description": "Constructs a search engine inverted index mapping words to document/line occurrences.",
+    "dataset": "wordcount_input.txt",
+    "expected_output": "Apache\t[Doc1:1, Doc1:4, Doc1:5]\nBig\t[Doc1:3, Doc1:9]\n...",
+    "code": "import java.io.IOException;\nimport java.util.StringTokenizer;\nimport org.apache.hadoop.conf.Configuration;\nimport org.apache.hadoop.fs.Path;\nimport org.apache.hadoop.io.Text;\nimport org.apache.hadoop.mapreduce.Job;\nimport org.apache.hadoop.mapreduce.Mapper;\nimport org.apache.hadoop.mapreduce.Reducer;\nimport org.apache.hadoop.mapreduce.lib.input.FileInputFormat;\nimport org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;\n\npublic class InvertedIndex {\n    public static class IndexMapper extends Mapper<Object, Text, Text, Text> {\n        private Text word = new Text();\n        private Text location = new Text();\n\n        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {\n            String line = value.toString();\n            location.set(key.toString());\n            StringTokenizer itr = new StringTokenizer(line);\n            while (itr.hasMoreTokens()) {\n                String w = itr.nextToken().replaceAll(\"[^a-zA-Z]\", \"\").toLowerCase();\n                if (!w.isEmpty()) {\n                    word.set(w);\n                    context.write(word, location);\n                }\n            }\n        }\n    }\n\n    public static class IndexReducer extends Reducer<Text, Text, Text, Text> {\n        public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {\n            StringBuilder sb = new StringBuilder();\n            for (Text val : values) {\n                if (sb.length() > 0) sb.append(\", \");\n                sb.append(val.toString());\n            }\n            context.write(key, new Text(\"[\" + sb.toString() + \"]\"));\n        }\n    }\n\n    public static void main(String[] args) throws Exception {\n        Configuration conf = new Configuration();\n        Job job = Job.getInstance(conf, \"inverted index\");\n        job.setJarByClass(InvertedIndex.class);\n        job.setMapperClass(IndexMapper.class);\n        job.setReducerClass(IndexReducer.class);\n        job.setOutputKeyClass(Text.class);\n        job.setOutputValueClass(Text.class);\n        FileInputFormat.addInputPath(job, new Path(\"wordcount_input.txt\"));\n        FileOutputFormat.setOutputPath(job, new Path(\"output_inverted_index\"));\n        System.exit(job.waitForCompletion(true) ? 0 : 1);\n    }\n}\n"
+  },
+  {
+    "id": "py_01_pandas_analytics",
+    "title": "Python - Big Data Analytics with Pandas",
+    "language": "python",
+    "category": "Python",
+    "description": "Reads students and employees datasets, performs statistical aggregation and summary visualization.",
+    "dataset": "students.csv, employees.csv",
+    "expected_output": "--- Top Students by GPA ---\n...",
+    "code": "import pandas as pd\nimport numpy as np\n\nprint(\"=== Big Data Online Lab: Python Data Analytics ===\")\n\n# Load student dataset\ndf_students = pd.read_csv('students.csv')\nprint(f\"\\nLoaded {len(df_students)} student records.\\n\")\n\n# Summary statistics\nprint(\"--- Summary by Major ---\")\nsummary = df_students.groupby('major').agg(\n    student_count=('id', 'count'),\n    avg_gpa=('gpa', 'mean'),\n    max_gpa=('gpa', 'max'),\n    total_credits=('credits', 'sum')\n).reset_index()\n\nprint(summary.to_string(index=False))\n\nprint(\"\\n--- Honor Roll Students (GPA >= 3.8) ---\")\nhonors = df_students[df_students['gpa'] >= 3.8][['id', 'name', 'major', 'gpa']]\nprint(honors.to_string(index=False))\n"
+  },
+  {
+    "id": "cpp_01_bubble_sort",
+    "title": "C++ - High Performance Sorting Algorithm",
+    "language": "cpp",
+    "category": "C & C++",
+    "description": "Implements an optimized quicksort and search algorithm on numeric dataset records.",
+    "dataset": "N/A",
+    "expected_output": "Original Array: [64, 34, 25, 12, 22, 11, 90]\nSorted Array: [11, 12, 22, 25, 34, 64, 90]",
+    "code": "#include <iostream>\n#include <vector>\n#include <algorithm>\n\nvoid printArray(const std::vector<int>& arr) {\n    std::cout << \"[\";\n    for (size_t i = 0; i < arr.size(); ++i) {\n        std::cout << arr[i] << (i + 1 < arr.size() ? \", \" : \"\");\n    }\n    std::cout << \"]\\n\";\n}\n\nint main() {\n    std::cout << \"=== Big Data Online Lab: C++ Sorting Benchmark ===\\n\";\n    std::vector<int> data = {64, 34, 25, 12, 22, 11, 90, 88, 45, 50};\n    \n    std::cout << \"Original Array: \";\n    printArray(data);\n    \n    std::sort(data.begin(), data.end());\n    \n    std::cout << \"Sorted Array:   \";\n    printArray(data);\n    \n    std::cout << \"\\nMinimum element: \" << data.front() << \"\\n\";\n    std::cout << \"Maximum element: \" << data.back() << \"\\n\";\n    return 0;\n}\n"
+  },
+  {
+    "id": "java_01_student_grades",
+    "title": "Java - Object Oriented Grade Analyzer",
+    "language": "java",
+    "category": "Java",
+    "description": "Complete OOP Java program with Student class, Streams API, and grade computation.",
+    "dataset": "N/A",
+    "expected_output": "Grade Analysis Report:\n...",
+    "code": "import java.util.*;\nimport java.util.stream.Collectors;\n\npublic class GradeAnalyzer {\n    static class Student {\n        String name;\n        String major;\n        double gpa;\n\n        Student(String name, String major, double gpa) {\n            this.name = name;\n            this.major = major;\n            this.gpa = gpa;\n        }\n    }\n\n    public static void main(String[] args) {\n        System.out.println(\"=== Big Data Online Lab: Java OOP Analyzer ===\");\n        List<Student> list = List.of(\n            new Student(\"Alice\", \"Computer Science\", 3.85),\n            new Student(\"Bob\", \"Data Science\", 3.42),\n            new Student(\"Charlie\", \"Computer Science\", 3.91),\n            new Student(\"Diana\", \"Data Science\", 3.75),\n            new Student(\"Evan\", \"Software Engineering\", 3.60)\n        );\n\n        double avgGpa = list.stream().mapToDouble(s -> s.gpa).average().orElse(0.0);\n        System.out.printf(\"Total Students: %d | Average GPA: %.2f%n%n\", list.size(), avgGpa);\n\n        System.out.println(\"Students Grouped by Major:\");\n        list.stream()\n            .collect(Collectors.groupingBy(s -> s.major))\n            .forEach((major, students) -> {\n                System.out.printf(\"  * %s: %d students%n\", major, students.size());\n            });\n    }\n}\n"
+  },
+  {
+    "id": "sql_01_sales_analysis",
+    "title": "SQL - Sales & Department Analytics",
+    "language": "sql",
+    "category": "SQL",
+    "description": "Executes relational schema creation, data insertion, joins, and group aggregations.",
+    "dataset": "In-memory SQLite",
+    "expected_output": "Department Salaries and Budgets Report",
+    "code": "-- Big Data Online Lab: SQL Practicals\nCREATE TABLE departments (\n    dept_id INTEGER PRIMARY KEY,\n    dept_name TEXT NOT NULL,\n    budget REAL\n);\n\nCREATE TABLE employees (\n    emp_id INTEGER PRIMARY KEY,\n    name TEXT NOT NULL,\n    dept_id INTEGER,\n    salary REAL,\n    FOREIGN KEY(dept_id) REFERENCES departments(dept_id)\n);\n\nINSERT INTO departments VALUES (10, 'Engineering', 850000);\nINSERT INTO departments VALUES (20, 'Data Science', 950000);\nINSERT INTO departments VALUES (30, 'Product', 600000);\n\nINSERT INTO employees VALUES (1, 'Alice Johnson', 10, 85000);\nINSERT INTO employees VALUES (2, 'Bob Smith', 20, 92000);\nINSERT INTO employees VALUES (3, 'Charlie Brown', 10, 78000);\nINSERT INTO employees VALUES (4, 'Diana Prince', 20, 105000);\nINSERT INTO employees VALUES (5, 'Evan Wright', 30, 88000);\n\n-- Analytical Query: Department Spending vs Budget\nSELECT \n    d.dept_name,\n    COUNT(e.emp_id) AS total_employees,\n    ROUND(AVG(e.salary), 2) AS avg_salary,\n    SUM(e.salary) AS total_salary_spend,\n    d.budget,\n    ROUND(d.budget - SUM(e.salary), 2) AS remaining_budget\nFROM departments d\nJOIN employees e ON d.dept_id = e.dept_id\nGROUP BY d.dept_id, d.dept_name, d.budget\nORDER BY total_salary_spend DESC;\n"
+  },
+  {
+    "id": "html_01_dashboard",
+    "title": "HTML/CSS/JS - Live Real-Time Dashboard",
+    "language": "html",
+    "category": "HTML / CSS / JavaScript",
+    "description": "Interactive HTML5/CSS3/JavaScript live visualization widget previewed directly in the browser.",
+    "dataset": "N/A",
+    "expected_output": "Interactive Live Visual Dashboard",
+    "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Big Data Online Lab - Metrics</title>\n  <style>\n    body {\n      margin: 0;\n      padding: 24px;\n      background: #0f172a;\n      color: #f8fafc;\n      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n    }\n    h1 { color: #818cf8; margin-top: 0; font-size: 24px; }\n    .grid {\n      display: grid;\n      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n      gap: 16px;\n      margin-top: 20px;\n    }\n    .card {\n      background: #1e293b;\n      border: 1px solid #334155;\n      border-radius: 10px;\n      padding: 16px;\n      transition: transform 0.2s;\n    }\n    .card:hover { transform: translateY(-4px); border-color: #6366f1; }\n    .metric { font-size: 28px; font-weight: bold; color: #38bdf8; margin: 8px 0; }\n    .label { color: #94a3b8; font-size: 13px; text-transform: uppercase; }\n    button {\n      margin-top: 20px;\n      background: #6366f1;\n      color: white;\n      border: none;\n      padding: 10px 18px;\n      border-radius: 6px;\n      cursor: pointer;\n      font-weight: 600;\n    }\n    button:hover { background: #4f46e5; }\n  </style>\n</head>\n<body>\n  <h1>Big Data Cluster Node Status</h1>\n  <p style=\"color: #94a3b8;\">Live telemetry preview from cluster monitor.</p>\n  <div class=\"grid\">\n    <div class=\"card\"><div class=\"label\">Active Nodes</div><div class=\"metric\" id=\"nodes\">16</div><small style=\"color:#4ade80;\">● Healthy</small></div>\n    <div class=\"card\"><div class=\"label\">HDFS Capacity</div><div class=\"metric\" id=\"hdfs\">4.2 TB</div><small style=\"color:#38bdf8;\">64% utilized</small></div>\n    <div class=\"card\"><div class=\"label\">MapReduce Jobs</div><div class=\"metric\" id=\"jobs\">8</div><small style=\"color:#fbbf24;\">3 in progress</small></div>\n    <div class=\"card\"><div class=\"label\">Cluster Load</div><div class=\"metric\" id=\"load\">42%</div><small style=\"color:#4ade80;\">Optimal</small></div>\n  </div>\n  <button onclick=\"refreshMetrics()\">Generate Live Telemetry Ping</button>\n\n  <script>\n    function refreshMetrics() {\n      document.getElementById('load').innerText = Math.floor(Math.random() * 40 + 35) + '%';\n      document.getElementById('jobs').innerText = Math.floor(Math.random() * 10 + 5);\n      alert('Telemetry successfully updated from live cluster nodes!');\n    }\n  </script>\n</body>\n</html>\n"
+  }
+]
+

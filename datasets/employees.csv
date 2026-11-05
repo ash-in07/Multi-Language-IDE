@@ -1,0 +1,14 @@
+emp_id,name,dept_id,salary,experience_years,city
+1,John Doe,10,75000,5,New York
+2,Jane Smith,20,88000,7,San Francisco
+3,Robert Lee,10,62000,3,New York
+4,Emily Davis,30,95000,9,Chicago
+5,Michael Chang,20,110000,11,San Francisco
+6,Sarah Connor,40,67000,4,Austin
+7,David Warner,10,54000,2,New York
+8,Jessica Jones,30,82000,6,Chicago
+9,Thomas Anderson,20,125000,12,San Francisco
+10,Rachel Green,40,71000,5,Austin
+11,Brian O'Conner,10,79000,6,New York
+12,Natasha Romanoff,30,99000,10,Chicago
+

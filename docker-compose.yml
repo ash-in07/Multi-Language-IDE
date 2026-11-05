@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bigdata_lab_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - lab_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bigdata_lab_backend
+    restart: always
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=super-secret-bigdata-key-2026
+      - JWT_SECRET_KEY=jwt-secret-bigdata-key-2026
+      - DATABASE_URL=postgresql://labuser:labpass@postgres:5432/bigdata_lab
+      - EXECUTION_MODE=hybrid
+      - PISTON_API_URL=https://emkc.org/api/v2/piston
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./workspaces:/app/workspaces
+      - ./datasets:/app/datasets
+      - ./hdfs_storage:/app/hdfs_storage
+      - ./samples:/app/samples
+    depends_on:
+      - postgres
+    networks:
+      - lab_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: bigdata_lab_db
+    restart: always
+    environment:
+      - POSTGRES_USER=labuser
+      - POSTGRES_PASSWORD=labpass
+      - POSTGRES_DB=bigdata_lab
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - lab_network
+
+  hadoop-pig:
+    build:
+      context: ./hadoop
+      dockerfile: Dockerfile
+    container_name: bigdata_lab_hadoop_pig
+    restart: always
+    volumes:
+      - ./workspaces:/workspace
+      - ./datasets:/workspace/datasets
+    networks:
+      - lab_network
+
+networks:
+  lab_network:
+    driver: bridge
+
+volumes:
+  pgdata:
+

@@ -1,0 +1,17 @@
+id,name,age,gender,major,gpa,credits
+101,Alice Johnson,20,Female,Computer Science,3.85,64
+102,Bob Smith,22,Male,Information Systems,3.42,88
+103,Charlie Brown,19,Male,Computer Science,3.91,32
+104,Diana Prince,21,Female,Data Science,3.75,76
+105,Evan Wright,23,Male,Software Engineering,2.95,110
+106,Fiona Gallagher,20,Female,Computer Science,3.60,58
+107,George Clark,22,Male,Data Science,3.15,92
+108,Hannah Abbott,21,Female,Information Systems,3.88,80
+109,Ian Malcolm,24,Male,Data Science,3.52,120
+110,Julia Roberts,20,Female,Software Engineering,3.98,60
+111,Kevin Bacon,22,Male,Computer Science,2.80,85
+112,Laura Croft,21,Female,Data Science,3.95,78
+113,Michael Scott,23,Male,Information Systems,3.10,105
+114,Nina Simone,19,Female,Computer Science,3.70,30
+115,Oscar Martinez,22,Male,Data Science,3.82,90
+

@@ -1,0 +1,10 @@
+Hadoop is an open source framework designed for distributed storage and processing
+MapReduce is a programming model for processing large datasets in parallel
+Big Data technologies enable organizations to store and analyze massive volumes of data
+Apache Pig is a high level platform for creating programs that run on Apache Hadoop
+Pig Latin is the procedural dataflow language used with Apache Pig
+MapReduce divides tasks into a Map phase and a Reduce phase for parallel execution
+Distributed computing provides scalable fault tolerant storage and high performance computation
+Hadoop MapReduce processes structured semi structured and unstructured data
+Big Data analytics powers modern artificial intelligence machine learning and business intelligence
+
