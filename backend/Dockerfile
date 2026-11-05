@@ -1,7 +1,8 @@
-# Multi-Language Big Data Online Lab Backend Dockerfile
-FROM python:3.11-slim
 
-# Install system utilities, GCC/G++, OpenJDK 17, and Node.js
+# Use a stable Debian-based Python image
+FROM python:3.11-slim-bookworm
+
+# Install required system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -11,28 +12,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     sqlite3 \
     procps \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set Java Environment
+# Configure Java
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV PATH=$JAVA_HOME/bin:$PATH
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 WORKDIR /app
 
-# Copy dependency definition and install
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
+# Copy backend application
 COPY . .
 
-# Create workspace and storage directories
+# Create required directories
 RUN mkdir -p /app/workspaces /app/datasets /app/hdfs_storage /app/samples
 
-EXPOSE 5000
-
+# Render port
 ENV PORT=5000
 ENV FLASK_ENV=production
 
-CMD ["python", "app.py"]
+EXPOSE 5000
 
+CMD ["python", "app.py"]
